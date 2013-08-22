@@ -101,7 +101,7 @@ def backupVRF(vrfName, localPeer):
 			routeDistinguisher = sub(r':0', '', routeDistinguisher)
 			
 			# Send command to router to retrieve second part of VRF configuration
-			socket.execute("show running-config | section SMVPN "+routeDistinguisher+" ")
+			socket.execute("show running-config | section SMVPN "+routeDistinguisher)
 			outputFile.write(socket.response)	# Write contents of running config to output file
 		except IOError:
 			print
