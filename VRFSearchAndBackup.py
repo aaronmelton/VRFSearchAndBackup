@@ -43,7 +43,7 @@ from os							import name, path, remove, system
 
 def version():
 # This function tracks the application version.
-	return "v0.0.1-alpha"
+	return "v0.0.2-alpha"
 
 def backupVRF(vrfName, localPeer):
 # This function takes the VRF Name and Local Peer IP as determined during
@@ -101,7 +101,7 @@ def backupVRF(vrfName, localPeer):
 			routeDistinguisher = sub(r':0', '', routeDistinguisher)
 			
 			# Send command to router to retrieve second part of VRF configuration
-			socket.execute("show running-config | section SMVPN "+routeDistinguisher)
+			socket.execute("show running-config | section SMVPN "+routeDistinguisher+" ")
 			outputFile.write(socket.response)	# Write contents of running config to output file
 		except IOError:
 			print
