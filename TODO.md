@@ -2,7 +2,6 @@
 ----------
 
 ## Needs Fixing ##
-- [ ] Update README.md, VRFSearchAndBackup.png
 
 ## New Features ##
 
