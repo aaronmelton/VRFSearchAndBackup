@@ -1,6 +1,10 @@
 # VRFSearchAndBackup.py #
 ---
 
+## VRFSearchAndBackup v0.0.4-alpha (2013-08-26) ##
+* Added functionality to specify configFile from the command line.
+* Updated README.md
+
 ## VRFSearchAndBackup v0.0.3-alpha (2013-08-26) ##
 * Created README.md, VRFSearchAndBackup.png
 * Updated TODO.md, code comments to reflect current functionality.  

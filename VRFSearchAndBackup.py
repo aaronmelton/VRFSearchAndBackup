@@ -18,6 +18,7 @@
 # Foundation, Inc., 51 Franklin Street, Fifth Floor, Boston, MA  02110-1301, USA.
 
 
+import argparse		# Required to read arguments from the command line
 import base64		# Required to decode password
 import datetime		# Required for date format
 import ConfigParser # Required for configuration file
@@ -26,10 +27,11 @@ import re			# Required for REGEX operations
 import sys			# Required for printing without newline
 import os			# Required to determine OS of host
 
+from argparse					import ArgumentParser, RawDescriptionHelpFormatter
 from base64						import b64decode
 from ConfigParser				import ConfigParser
 from datetime                   import datetime
-from Exscript                   import Account, Queue, Host, Logger
+from Exscript                   import Account, Queue, Host
 from Exscript.protocols 		import SSH2
 from Exscript.util.file			import get_hosts_from_file
 from Exscript.util.decorator    import autologin
@@ -39,9 +41,17 @@ from sys						import stdout
 from os							import name, path, remove, system
 
 
-def version():
-# This function tracks the application version.
-	return "v0.0.3-alpha"
+class Application:
+# This class was created to provide me with an easy way to update application
+# details across all my applications.  Also used to display information when
+# application is executed with "--help" argument.
+	author = "Aaron Melton <aaron@aaronmelton.com>"
+	date = "(2013-08-26)"
+	description = "Search and back up the (VRF) VPN tunnel configuration on a Cisco router."
+	name = "VRFSearchAndBackup.py"
+	url = "https://github.com/aaronmelton/VRFSearchAndBackup"
+	version = "v0.0.4-alpha"
+
 
 def backupVRF(vrfName, localPeer):
 # This function takes the VRF Name and Local Peer IP as determined during
@@ -101,6 +111,8 @@ def backupVRF(vrfName, localPeer):
 			# Send command to router to retrieve second part of VRF configuration
 			socket.execute("show running-config | section SMVPN "+routeDistinguisher+" ")
 			outputFile.write(socket.response)	# Write contents of running config to output file
+		
+		# Exception: outputFile file could not be opened
 		except IOError:
 			print
 			print "--> An error occurred opening "+outputFile+"."	
@@ -129,6 +141,8 @@ def buildIndex(job, host, socket):
 	with open(indexFileTmp, 'a') as outputFile:
 		try:
 			outputFile.write(socket.response)	# Write contents of running config to output file
+		
+		# Exception: indexFileTmp file could not be opened
 		except IOError:
 			print
 			print "--> An error occurred opening "+indexFileTmp+"."
@@ -160,12 +174,12 @@ def cleanIndex(indexFileTmp, host):
 					f = sub(r'.*#', '', e)
 					dstIndex.write(f)
 
-			# Exception: actual index file was not able to be opened
+			# Exception: indexFile could not be opened
 			except IOError:
 				print
 				print "--> An error occurred opening "+indexFile+"."
 
-	# Exception: temporary index file was not able to be opened
+	# Exception: temporary index file could not be opened
 	except IOError:
 		print
 		print "--> An error occurred opening "+indexFileTmp+"."
@@ -243,7 +257,7 @@ def routerLogin():
 		queue.run(hosts, buildIndex)			# Create queue using provided hosts
 		queue.shutdown()						# End all running threads and close queue
 		
-	# Exception: router file was not able to be opened
+	# Exception: router file could not be opened
 	except IOError:
 		print
 		print "--> An error occurred opening "+routerFile+"."
@@ -298,7 +312,9 @@ def searchIndex(fileName):
 		
 									vrfName = word[0]				# Strip out VRF name from search results
 									localPeer = word[2].rstrip()	# Strip out Local Peer IP from search results
-									backupVRF(vrfName, localPeer)
+									backupVRF(vrfName, localPeer)	# Log into router and backup config
+						
+						# Exception: unable to connect to router
 						except IOError:
 							print
 							print "An error occurred connecting to "+localPeer+"."
@@ -306,8 +322,8 @@ def searchIndex(fileName):
 				else:
 					print
 					print "--> Your search string was not found in "+indexFile+"."
-	
-		# Exception: index file was not able to be opened
+
+		# Exception: index file could not be opened
 		except IOError:
 			print
 			print "--> An error occurred opening "+indexFile+"."
@@ -318,33 +334,43 @@ def upToDate(fileName):
 
 	# If the modify date of the file is equal to today's date
 	if datetime.fromtimestamp(path.getmtime(fileName)).date() == datetime.today().date():
-		return True	# File is "up-to-date" (modified today)
+		return True	# File is "up to date" (modified today)
 
 	# Else the modify date of the index file is not today's date
 	else:
 		return False	# File is older than today's date
 
 
-# Change the filenames of these variables to suit your needs
-configFile='settings.cfg'
+# Check to determine if any arguments may have been presented at the command
+# line and generate help message for "--help" switch
+parser = ArgumentParser(
+    formatter_class=RawDescriptionHelpFormatter,description=(
+		Application.name+" "+Application.version+" "+Application.date+"\n"+
+		"--\n"+
+		"Description: "+Application.description+"\n\n"+
+		"Author: "+Application.author+"\n"+
+		"URL:    "+Application.url
+	))
+# Add additional argument to handle any optional configFile passed to application
+parser.add_argument("-c", "--config", dest="configFile", help="config file", default="settings.cfg", required=False)
+args = parser.parse_args()		# Set 'args' = input from command line
+configFile = args.configFile	# Set configFile = config file from command line OR 'settings.cfg'
 
 # Determine OS in use and clear screen of previous output
-if name == 'nt':
-	system("cls")
-else:
-	system("clear")
+if name == 'nt':	system("cls")
+else:				system("clear")
 
 # PRINT PROGRAM BANNER
-print "VRF Search and Backup Tool "+version()
-print "-"*(27+len(version()))
+print Application.name+" "+Application.version+" "+Application.date
+print "-"*(len(Application.name+Application.version+Application.date)+2)
+
 
 # START PROGRAM
 # Steps below refer to documented program flow in VRFSearchAndBackup.png
 # Step 1: Check for presence of settings.cfg file
 try:
 # Try to open configFile
-	with open(configFile, 'r'):
-		print
+	with open(configFile, 'r'):	pass
 	
 # Step 2: Create example settings.cfg file
 except IOError:
@@ -356,6 +382,8 @@ except IOError:
 			exampleFile.write("## VRFSearchAndBackup.py CONFIGURATION FILE ##\n#\n")
 			exampleFile.write("[account]\n#password is base64 encoded! Plain text passwords WILL NOT WORK!\n#Use website such as http://www.base64encode.org/ to encode your password\nusername=\npassword=\n#\n")
 			exampleFile.write("[VRFSearchAndBackup]\n#Check your paths! Files will be created; Directories will not.\n#Bad directories may result in errors!\n#variable=C:\path\\to\\filename.ext\nrouterFile=routers.txt\nindexFile=index.txt\nindexFileTmp=index.txt.tmp\nbackupDirectory=\n")
+
+	# Exception: configFile could not be created
 	except IOError:
 		print
 		print "--> An error occurred creating the example "+configFile+"."
@@ -389,13 +417,14 @@ finally:
 			if upToDate(indexFile):
 				# Step 7: Prompt user to provide search criteria
 				# Step 8: Backup VRF configuration, if user requests it and END PROGRAM
+				print
 				print("--> Index found and appears up to date.")
 				searchIndex(indexFile)
 			else: # if upToDate(indexFile):
 				# Step 9: Ask user if they would like to update indexFile
 				# Update indexFile?
 				print
-				if confirm("--> The index does not appear up-to-date.\n\nWould you like to update it? [Y/n] "):
+				if confirm("--> The index does not appear up to date.\n\nWould you like to update it? [Y/n] "):
 					# Step 10: Prompt user for username & password (if not stored in settings.cfg)
 					# Step 11: Login to routers and retrieve VRF, Peer information
 					# Step 12: Sort indexFile to remove unnecessary data
@@ -422,12 +451,16 @@ finally:
 		# Step 13: Create example routerFile and exit program and END PROGRAM	
 		try:
 			with open (routerFile, 'w') as exampleFile:
+				print
+				print "--> Router file not found; Creating "+routerFile+"."
+				print "    Edit this file and restart the application."
 				exampleFile.write("## VRFSearchAndBackup.py ROUTER FILE ##\n#\n")
 				exampleFile.write("#Enter a list of hostnames or IP Addresses, one per line.\n#For example:\n")
 				exampleFile.write("192.168.1.1\n192.168.1.2\nRouterA\nRouterB\nRouterC\netc...")
-				print "--> Router file not found; Creating "+routerFile+"."
-				print "    Edit this file and restart the application."
+		
+		# Exception: file could not be created
 		except IOError:
+			print
 			print "--> Required file "+routerFile+" not found; An error has occurred creating "+routerFile+"."
 			print "This file must contain a list, one per line, of Hostnames or IP addresses the"
 			print "application will then connect to download the running-config."
