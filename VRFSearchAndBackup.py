@@ -48,11 +48,11 @@ class Application:
 # details across all my applications.  Also used to display information when
 # application is executed with "--help" argument.
 	author = "Aaron Melton <aaron@aaronmelton.com>"
-	date = "(2013-08-29)"
+	date = "(2013-09-09)"
 	description = "Search and back up the (VRF) VPN tunnel configuration on a Cisco router."
 	name = "VRFSearchAndBackup.py"
 	url = "https://github.com/aaronmelton/VRFSearchAndBackup"
-	version = "v0.0.5-alpha"
+	version = "v0.0.6-alpha"
 
 
 def backupVRF(vrfName, localPeer):
@@ -60,17 +60,17 @@ def backupVRF(vrfName, localPeer):
 # the searchIndex() function, retrieves all matching VRFs from their respective
 # routers and writes the config to a file.
 
-	dated = datetime.now()				# Determine today's date
-	dated = dated.strftime('%Y%m%d')	# Format date as YYYYMMDD
+	# If backupDirectory does not exist, create it
+	if not path.exists(backupDirectory): makedirs(backupDirectory)
 
 	# Define output filename based on hostname and date
-	outputFilename = backupDirectory+vrfName+'_Config_'+dated+'.txt'
+	outputFilename = backupDirectory+vrfName+'_Config_'+date+'.txt'
 	
 	# Check to see if outputFilename currently exists.  If it does, append an
 	# integer onto the end of the filename until outputFilename no longer exists
 	incrementFilename = 1
 	while fileExist(outputFilename):
-		outputFilename = backupDirectory+vrfName+'_Config_'+dated+'_'+str(incrementFilename)+'.txt'
+		outputFilename = backupDirectory+vrfName+'_Config_'+date+'_'+str(incrementFilename)+'.txt'
 		incrementFilename = incrementFilename + 1
 	
 	with open(outputFilename, 'w') as outputFile:
@@ -254,7 +254,7 @@ def routerLogin():
 		else:							# Else use username/password from configFile
 			account = Account(name=username, password=b64decode(password))
 		
-		# Minimal message from queue, 1 threads
+		# Minimal message from queue, 1 threads, redirect errors to null
 		queue = Queue(verbose=0, max_threads=1, stderr=(open(os.devnull, 'w')))
 		queue.add_account(account)				# Use supplied user credentials
 		print
@@ -262,6 +262,9 @@ def routerLogin():
 		queue.run(hosts, buildIndex)			# Create queue using provided hosts
 		queue.shutdown()						# End all running threads and close queue
 		
+		# If logFileDirectory does not exist, create it.
+		if not path.exists(logFileDirectory): makedirs(logFileDirectory)
+
 		# Define log filename based on date
 		logFilename = logFileDirectory+'VRFSearchAndBackup_'+date+'.log'
 
@@ -429,14 +432,11 @@ finally:
 	
 	# If logFileDirectory does not contain trailing backslash, append one
 	if logFileDirectory != '':
-		if logFileDirectory[-1:] != "\\":
-			logFileDirectory = logFileDirectory+"\\"
-			if not path.exists(logFileDirectory): makedirs(logFileDirectory)
+		if logFileDirectory[-1:] != "\\": logFileDirectory = logFileDirectory+"\\"
+			
 	# If backupDirectory does not contain trailing backslash, append one
 	if backupDirectory != '':
-		if backupDirectory[-1:] != "\\":
-			backupDirectory = backupDirectory+"\\"
-			if not path.exists(backupDirectory): makedirs(backupDirectory)
+		if backupDirectory[-1:] != "\\": backupDirectory = backupDirectory+"\\"
 
 	# Define 'date' variable for use in the output filename
 	date = datetime.now()	# Determine today's date
