@@ -1,6 +1,11 @@
 # VRFSearchAndBackup.py #
 ---
 
+## VRFSearchAndBackup v1.0.0 (2013-11-13) ##
+* Added functionality to strip whitespace from user input
+* Application has been functioning without major issues since last release;
+  pushing to "production" status.
+
 ## VRFSearchAndBackup v0.0.6-alpha (2013-09-09) ##
 * Corrected makedirs() functionality: Directories with a trailing backslash
   in the config file were not being created thereby causing the application
