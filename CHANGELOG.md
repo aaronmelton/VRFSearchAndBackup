@@ -1,6 +1,12 @@
 # VRFSearchAndBackup.py #
 ---
 
+## VRFSearchAndBackup v1.0.1 (2014-03-17) ##
+* Replaced tab with four spaces.
+* Replaced ' with " to be consistent throughout the file.
+* Corrected problem where application would fail if logFileDirectory or 
+  backupFileDirectory in settings.cfg was blank.
+
 ## VRFSearchAndBackup v1.0.0 (2013-11-13) ##
 * Added functionality to strip whitespace from user input
 * Application has been functioning without major issues since last release;
