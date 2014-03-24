@@ -1,6 +1,11 @@
 # VRFSearchAndBackup.py #
 ---
 
+## VRFSearchAndBackup v1.0.2 (2014-03-24) ##
+* Changed text "Enter the VRF Name or IP Address you are searching for" to
+  "Enter the VRF Name or Peer IP Address you are searching for" to clarify
+  which IP the user should be entering.
+
 ## VRFSearchAndBackup v1.0.1 (2014-03-17) ##
 * Replaced tab with four spaces.
 * Replaced ' with " to be consistent throughout the file.

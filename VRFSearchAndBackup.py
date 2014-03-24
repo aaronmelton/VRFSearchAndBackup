@@ -48,11 +48,11 @@ class Application:
 # details across all my applications.  Also used to display information when
 # application is executed with "--help" argument.
     author = "Aaron Melton <aaron@aaronmelton.com>"
-    date = "(2014-03-17)"
+    date = "(2014-03-24)"
     description = "Search and back up the (VRF) VPN tunnel configuration on a Cisco router."
     name = "VRFSearchAndBackup.py"
     url = "https://github.com/aaronmelton/VRFSearchAndBackup"
-    version = "v1.0.1"
+    version = "v1.0.2"
 
 
 def backupVRF(vrfName, localPeer):
@@ -296,11 +296,11 @@ def searchIndex(fileName):
 
     # Ask the user to provide search string
     print
-    searchString = raw_input("Enter the VRF Name or IP Address you are searching for: ")
+    searchString = raw_input("Enter the VRF Name or Peer IP Address you are searching for: ")
     
     # Repeat the question until user provides ANY input
     while searchString == "":
-        searchString = raw_input("Enter the VRF Name or IP Address you are searching for: ")
+        searchString = raw_input("Enter the VRF Name or Peer IP Address you are searching for: ")
 
     # As long as the user provides ANY input, the application will search for it
     else:
