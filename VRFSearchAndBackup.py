@@ -1,7 +1,7 @@
 #!/usr/bin/env python
 #
 # VRFSearchAndBackup.py
-# Copyright (C) 2013-2015 Aaron Melton <aaron(at)aaronmelton(dot)com>
+# Copyright (C) 2013-2014 Aaron Melton <aaron(at)aaronmelton(dot)com>
 # 
 # This program is free software; you can redistribute it and/or
 # modify it under the terms of the GNU General Public License
@@ -48,11 +48,11 @@ class Application:
 # details across all my applications.  Also used to display information when
 # application is executed with "--help" argument.
     author = "Aaron Melton <aaron@aaronmelton.com>"
-    date = "(2015-02-16)"
+    date = "(2014-03-24)"
     description = "Search and back up the (VRF) VPN tunnel configuration on a Cisco router."
     name = "VRFSearchAndBackup.py"
     url = "https://github.com/aaronmelton/VRFSearchAndBackup"
-    version = "v1.0.3"
+    version = "v1.0.2"
 
 
 def backupVRF(vrfName, localPeer):
@@ -340,7 +340,7 @@ def searchIndex(fileName):
                                 if searchString in line:
                                     word = line.split(",")          # Split up matching line at the comments
         
-                                    vrfName = word[0].strip()               # Strip out VRF name from search results
+                                    vrfName = word[0]               # Strip out VRF name from search results
                                     localPeer = word[2].rstrip()    # Strip out Local Peer IP from search results
                                     backupVRF(vrfName, localPeer)   # Log into router and backup config
                         
