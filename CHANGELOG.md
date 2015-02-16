@@ -1,6 +1,11 @@
 # VRFSearchAndBackup.py #
 ---
 
+## VRFSearchAndBackup v1.0.3 (2015-02-16) ##
+* Corrected Issue #1 https://github.com/aaronmelton/VRFSearchAndBackup/issues/1
+* Changed "vrfName = word[0]" to "vrfName = word[0].strip()" to correctly
+  strip whitespace from this variable.
+
 ## VRFSearchAndBackup v1.0.2 (2014-03-24) ##
 * Changed text "Enter the VRF Name or IP Address you are searching for" to
   "Enter the VRF Name or Peer IP Address you are searching for" to clarify
